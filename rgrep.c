@@ -17,12 +17,19 @@ int matches_leading(char *partial_line, char *pattern) {
  * and will not overrun the buffer set by MAXSIZE 
  *
  * Implementation of the rgrep matcher function
+Student note: main calls rgreg_matches for _each line._
  */
 int rgrep_matches(char *line, char *pattern) {
 
     //
     // Implement me 
     //
+
+	/**First we're gonna split up our pattern	*/
+
+	/**We search the line for each part of the pattern*/
+
+	/**If one part doesn't match - we don't have a match.*/
 
     return 0;
 }
