@@ -43,11 +43,6 @@ int howAreWeLookingFor(char *pattern, int patternCursor)
 	return 0;
 }
 
-int repeatMatch(char *line, int lineCursor, char whatToLookFor)
-{
-
-}
-
 int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 {
 	/**If this isn't the first character of the pattern we're looking for, only check the current lineCursor position*/
@@ -64,11 +59,26 @@ int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 	while (line[lineCursor] != 0)
 	{
 		if (line[lineCursor] == whatToLookFor)
-			return lineCursor + 1; //Return the next line it should be at
+			return ++lineCursor; //Return the next line it should be at
 		else
 			lineCursor++;
 	}
 	return 0; //Did not find anything
+}
+
+int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
+{
+	int lastKnownLine = lineCursor;
+	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
+	if (lineCursor == 0)
+		return 0; //No match
+
+	while (lineCursor != 0)
+	{
+		lastKnownLine = lineCursor;
+		lineCursor = basicMatch(line, lineCursor, whatToLookFor, 0);
+	}
+	return lastKnownLine;
 }
 
 /**
@@ -88,7 +98,7 @@ int rgrep_matches(char *line, char *pattern) {
 
 	int lineCursor = 0;
 	int patternCursor = 0;
-	int match = 1; //Are we currently matching (used when we hit end of line
+	int match = 0; //Are we currently matching (used when we hit end of line
 	int attempts = 0; //Used to reset lineCursor to when "resetting" search
 	int initial = 1; //Is this the first character we're looking for?
 	while (1)
@@ -119,7 +129,7 @@ int rgrep_matches(char *line, char *pattern) {
 		int howAreWeLookingForThing = howAreWeLookingFor(pattern, patternCursor);
 
 		/**If we're at end of line, but haven't finished matching the pattern yet, then no this is not a match*/
-		else if (line[lineCursor] == 0 && howAreWeLookingForThing < 2)
+		if (line[lineCursor] == 0 && howAreWeLookingForThing < 2)
 			return 0;
 
 		//call other methods depending on its result
@@ -130,15 +140,17 @@ int rgrep_matches(char *line, char *pattern) {
 			case 0:
 				result = basicMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor++; //Move on to next character in pattern
-			//case 1:
-
-
+				break;
+			case 1:
+				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
+				patternCursor = patternCursor + 2; //Jump over the +
+				break;
 		}
 		if (result != 0)
 		{
 			lineCursor = result;
 			match = 1;
-			initial = 0
+			initial = 0;
 		}
 
 		/**If one part doesn't match - reset pattern "cursor" position.
