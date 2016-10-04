@@ -43,15 +43,30 @@ int howAreWeLookingFor(char *pattern, int patternCursor)
 	return 0;
 }
 
-int basicMatch(char *line, int lineCursor, char whatToLookFor)
+int repeatMatch(char *line, int lineCursor, char whatToLookFor)
 {
+
+}
+
+int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
+{
+	/**If this isn't the first character of the pattern we're looking for, only check the current lineCursor position*/
+	if (initial == 0)
+	{
+		if (line[lineCursor] == whatToLookFor)
+			return ++lineCursor;
+		else
+			return 0;
+	}
+
 	//TODO: handle period
+
 	while (line[lineCursor] != 0)
 	{
 		if (line[lineCursor] == whatToLookFor)
 			return lineCursor + 1; //Return the next line it should be at
 		else
-			lineCursor = lineCursor + 1;
+			lineCursor++;
 	}
 	return 0; //Did not find anything
 }
@@ -73,9 +88,10 @@ int rgrep_matches(char *line, char *pattern) {
 
 	int lineCursor = 0;
 	int patternCursor = 0;
-	int match = 1;
-	int attempts = 0;
-	while (line[lineCursor] != 0)
+	int match = 1; //Are we currently matching (used when we hit end of line
+	int attempts = 0; //Used to reset lineCursor to when "resetting" search
+	int initial = 1; //Is this the first character we're looking for?
+	while (1)
 	{
 		/**If we're at the end of the pattern and we are matching, return now
 		Otherwise, reset patternCursor*/
@@ -89,13 +105,16 @@ int rgrep_matches(char *line, char *pattern) {
 			attempts = attempts + 1;
 			lineCursor = attempts;
 			match = 0;
+			initial = 1;
 		}
+		/**If we're at end of line, but haven't finished matching the pattern yet, then no this is not a match*/
+		else if (line[lineCursor] == 0 && pattern[patternCursor + 1] != '?')
+			return 0;
 
 		//determine what we're looking for from pattern (separate method that returns necessary stuff)
 		if (pattern[patternCursor] == '\\')
 		{
-			patternCursor++;
-			continue; //Skip to next character
+			patternCursor++; //Skip to next character
 		}
 
 
@@ -107,7 +126,7 @@ int rgrep_matches(char *line, char *pattern) {
 		switch (howAreWeLookingForThing)
 		{
 			case 0:
-				result = basicMatch(line, lineCursor, thingWeAreLookingFor);
+				result = basicMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor++; //Move on to next character in pattern
 			//case 1:
 
@@ -117,6 +136,7 @@ int rgrep_matches(char *line, char *pattern) {
 		{
 			lineCursor = result;
 			match = 1;
+			initial = 0
 		}
 
 		/**If one part doesn't match - reset pattern "cursor" position.
@@ -128,6 +148,7 @@ int rgrep_matches(char *line, char *pattern) {
 			attempts++;
 			lineCursor = attempts;
 			match = 0;
+			initial = 1;
 		}
 		//? = return same value/position if not found
 		//+ = if found, keep check if next character also matches. Continue process, and return appropriate position
