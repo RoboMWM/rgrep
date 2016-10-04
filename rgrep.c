@@ -12,6 +12,50 @@ int matches_leading(char *partial_line, char *pattern) {
   return 0;
 }
 
+/*
+Determines the modifiers for the current pattern cursor position
+returns:
+0 - none
+1 - +
+2 - ?
+3 - +?
+*/
+int howAreWeLookingFor(char *pattern, int patternCursor)
+{
+	char x = pattern[patternCursor + 1];
+	char y = pattern[patternCursor + 2];
+
+	if (x == '+')
+	{
+		if (y == '\?')
+			return 3;
+		return 1;
+	}
+
+	if (x == '\?')
+	{
+		if (y == '+')
+			return 3;
+		return 2;
+	}
+
+	//No modifiers if we get to here
+	return 0;
+}
+
+int basicMatch(char *line, int lineCursor, char whatToLookFor)
+{
+	//TODO: handle period
+	while (line[lineCursor] != 0)
+	{
+		if (line[lineCursor] == whatToLookFor)
+			return lineCursor + 1; //Return the next line it should be at
+		else
+			lineCursor = lineCursor + 1;
+	}
+	return 0; //Did not find anything
+}
+
 /**
  * You may assume that all strings are properly null terminated 
  * and will not overrun the buffer set by MAXSIZE 
@@ -21,17 +65,77 @@ Student note: main calls rgreg_matches for _each line._
  */
 int rgrep_matches(char *line, char *pattern) {
 
-    //
-    // Implement me 
-    //
-
 	/**First we're gonna split up our pattern	*/
+	
+	/**We search the line for each part of the pattern
+	We maintain line "cursor" position as we iterate through each section of the pattern (result must be contiguous, obviously)
+	*/
 
-	/**We search the line for each part of the pattern*/
+	int lineCursor = 0;
+	int patternCursor = 0;
+	int match = 1;
+	int attempts = 0;
+	while (line[lineCursor] != 0)
+	{
+		/**If we're at the end of the pattern and we are matching, return now
+		Otherwise, reset patternCursor*/
+		if (pattern[patternCursor] == 0 && match == 1)
+		{
+			return 1;
+		}
+		else if (pattern[patternCursor] == 0 && match == 0)
+		{
+			patternCursor = 0;
+			attempts = attempts + 1;
+			lineCursor = attempts;
+			match = 0;
+		}
 
-	/**If one part doesn't match - we don't have a match.*/
+		//determine what we're looking for from pattern (separate method that returns necessary stuff)
+		if (pattern[patternCursor] == '\\')
+		{
+			patternCursor++;
+			continue; //Skip to next character
+		}
 
-    return 0;
+
+		char thingWeAreLookingFor = pattern[patternCursor];
+		int howAreWeLookingForThing = howAreWeLookingFor(pattern, patternCursor);
+		//call other methods depending on its result
+		//. = basically insta-match, unless null
+		int result;
+		switch (howAreWeLookingForThing)
+		{
+			case 0:
+				result = basicMatch(line, lineCursor, thingWeAreLookingFor);
+				patternCursor++; //Move on to next character in pattern
+			//case 1:
+
+
+		}
+		if (result != 0)
+		{
+			lineCursor = result;
+			match = 1;
+		}
+
+		/**If one part doesn't match - reset pattern "cursor" position.
+		Also reset line "cursor" position + amount of attempts
+		*/
+		else
+		{
+			patternCursor = 0;
+			attempts++;
+			lineCursor = attempts;
+			match = 0;
+		}
+		//? = return same value/position if not found
+		//+ = if found, keep check if next character also matches. Continue process, and return appropriate position
+		//+? = same as ?, but if found, apply + (call ? method, if it doesn't return same position, call +)
+		
+	}
+
+    return match;
 }
 
 int main(int argc, char **argv) {
@@ -44,6 +148,7 @@ int main(int argc, char **argv) {
     char buf[MAXSIZE];
 
     while (!feof(stdin) && !ferror(stdin)) {
+
         if (!fgets(buf, sizeof(buf), stdin)) {
             break;
         }
