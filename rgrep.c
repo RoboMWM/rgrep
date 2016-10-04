@@ -107,9 +107,7 @@ int rgrep_matches(char *line, char *pattern) {
 			match = 0;
 			initial = 1;
 		}
-		/**If we're at end of line, but haven't finished matching the pattern yet, then no this is not a match*/
-		else if (line[lineCursor] == 0 && pattern[patternCursor + 1] != '?')
-			return 0;
+		
 
 		//determine what we're looking for from pattern (separate method that returns necessary stuff)
 		if (pattern[patternCursor] == '\\')
@@ -117,9 +115,13 @@ int rgrep_matches(char *line, char *pattern) {
 			patternCursor++; //Skip to next character
 		}
 
-
 		char thingWeAreLookingFor = pattern[patternCursor];
 		int howAreWeLookingForThing = howAreWeLookingFor(pattern, patternCursor);
+
+		/**If we're at end of line, but haven't finished matching the pattern yet, then no this is not a match*/
+		else if (line[lineCursor] == 0 && howAreWeLookingForThing < 2)
+			return 0;
+
 		//call other methods depending on its result
 		//. = basically insta-match, unless null
 		int result;
