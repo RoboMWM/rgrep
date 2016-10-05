@@ -51,7 +51,7 @@ int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 		if (line[lineCursor] != 0)
 			return ++lineCursor;
 		else
-			return 0;
+			return -1;
 	}
 
 	/**If this isn't the first character of the pattern we're looking for, only check the current lineCursor position*/
@@ -60,7 +60,7 @@ int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 		if (line[lineCursor] == whatToLookFor)
 			return ++lineCursor;
 		else
-			return 0;
+			return -1;
 	}
 
 	while (line[lineCursor] != 0)
@@ -80,7 +80,10 @@ int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 	if (lineCursor == -1)
 		return -1; //No match
 
-	while (lineCursor != 0)
+	if (whatToLookFor == '.')
+		whatToLookFor = line[lineCursor - 1];
+
+	while (lineCursor != -1)
 	{
 		lastKnownLine = lineCursor;
 		lineCursor = basicMatch(line, lineCursor, whatToLookFor, 0);
@@ -92,7 +95,7 @@ int questionMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 {
 	int lastKnownLine = lineCursor;
 	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
-	if (lineCursor == 0)
+	if (lineCursor == -1)
 		return lastKnownLine; //doesn't exist, but doesn't matter either
 	return lineCursor;
 }
@@ -146,7 +149,8 @@ int rgrep_matches(char *line, char *pattern) {
 
 		/**If we're at end of line, but haven't finished matching the pattern yet, then no this is not a match*/
 		if (line[lineCursor] == 0 && howAreWeLookingForThing < 2)
-			return 0;
+				return 0;
+			
 
 		//call other methods depending on its result
 		//. = basically insta-match, unless null
@@ -164,6 +168,11 @@ int rgrep_matches(char *line, char *pattern) {
 			case 2:
 				result = questionMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the ?
+				if (pattern[patternCursor] == thingWeAreLookingFor && result != lineCursor) //Special case for things like a?a
+				{
+					result = lineCursor;
+					break;
+				}
 				break;
 		}
 		if (result != -1)
