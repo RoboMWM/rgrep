@@ -91,8 +91,12 @@ int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 	return lastKnownLine;
 }
 
-int questionMatch(char *line, int lineCursor, char whatToLookFor, int initial)
+int questionMatch(char *line, char *pattern, int lineCursor, int patternCursor, char whatToLookFor, int initial)
 {
+	//First see if we can match omitting this character
+	if (theMatcher(line, pattern, lineCursor, patternCursor + 2) == 1)
+		return -2;
+	
 	int lastKnownLine = lineCursor;
 	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
 	if (lineCursor == -1)
@@ -150,13 +154,10 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor)
 				}
 				break;
 			case 2:
-				result = questionMatch(line, lineCursor, thingWeAreLookingFor, initial);
+				result = questionMatch(line, pattern, lineCursor, patternCursor, thingWeAreLookingFor, initial);
+				if (result == -2)
+					return 1;
 				patternCursor = patternCursor + 2; //Jump over the ?
-				if (pattern[patternCursor] == thingWeAreLookingFor && result > lineCursor) //Special case for things like a?a
-				{
-					result = lineCursor;
-					break;
-				}
 				break;
 			case 3:
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
@@ -205,7 +206,7 @@ int rgrep_matches(char *line, char *pattern) {
 
 	int lineCursor = 0;
 	int patternCursor = 0;
-	int attempts = 0; //Used to reset lineCursor to when "resetting" search
+	int attempts = 0; //Used to reset lineCursor when "resetting" search
 	int	matching = theMatcher(line, pattern, lineCursor, patternCursor);
 	while (matching == -1)
 	{
