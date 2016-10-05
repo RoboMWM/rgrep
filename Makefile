@@ -28,5 +28,8 @@ check: clean rgrep
 	test "`echo "aaab" | ./rgrep 'a+ab'`" = "aaab"
 	test "`echo "bah" | ./rgrep 'ba?ah'`" = "bah"
 	test "`echo "baah" | ./rgrep 'ba?ah'`" = "baah"
+	test "`echo "baah\nbah" | ./rgrep 'ba+ah'`" = "baah"
+	test "`echo "baaaah" | ./rgrep 'ba+ah'`" = "baaaah"
+	test "`echo "baah\nbaaaah" | ./rgrep 'ba+aah'`" = "baaaah"
 	@echo "Passed sanity check."
 
