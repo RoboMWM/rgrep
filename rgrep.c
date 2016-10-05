@@ -45,6 +45,15 @@ int howAreWeLookingFor(char *pattern, int patternCursor)
 
 int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 {
+	//Handle period
+	if (whatToLookFor == '.')
+	{
+		if (line[lineCursor] != 0)
+			return ++lineCursor;
+		else
+			return 0;
+	}
+
 	/**If this isn't the first character of the pattern we're looking for, only check the current lineCursor position*/
 	if (initial == 0)
 	{
@@ -53,8 +62,6 @@ int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 		else
 			return 0;
 	}
-
-	//TODO: handle period
 
 	while (line[lineCursor] != 0)
 	{
