@@ -124,17 +124,18 @@ int rgrep_matches(char *line, char *pattern) {
 	{
 		/**If we're at the end of the pattern and we are matching, return now
 		Otherwise, reset patternCursor*/
-		if (pattern[patternCursor] == 0 && match == 1)
+		if (!pattern[patternCursor])
 		{
-			return 1;
-		}
-		else if (pattern[patternCursor] == 0 && match == 0)
-		{
-			patternCursor = 0;
-			attempts = attempts + 1;
-			lineCursor = attempts;
-			match = 0;
-			initial = 1;
+			if (match)
+				return 1;
+			else
+			{
+				patternCursor = 0;
+				attempts = attempts + 1;
+				lineCursor = attempts;
+				match = 0;
+				initial = 1;
+			}
 		}
 		
 
