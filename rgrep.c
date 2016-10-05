@@ -142,10 +142,17 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 			case 1:
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the +
-				if (pattern[patternCursor] == thingWeAreLookingFor && result > lineCursor) //Special case for things like a+a
+				if (result != -1) //Attempt to consider cases like a+a via decrementing a copy of lineCursor
 				{
-					result--;
-					break;
+					int preliminaryLineCursor = result;
+					while (line[--preliminaryLineCursor] == thingWeAreLookingFor && preliminaryLineCursor > lineCursor)
+					{
+						int preliminaryResult = theMatcher(line, pattern, preliminaryLineCursor, patternCursor, 0);
+						if (preliminaryResult == 1)
+						{
+							return 1;
+						}
+					}	
 				}
 				break;
 			case 2:
@@ -156,6 +163,9 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 				patternCursor = patternCursor + 2; //Jump over the ?
 				break;
 			case 3:
+				//First see if we can match omitting this entirely
+				if (theMatcher(line, pattern, lineCursor, patternCursor + 3, 0) == 1)
+					return 1;
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 3;
 				if (result == -1)
@@ -202,14 +212,12 @@ int rgrep_matches(char *line, char *pattern) {
 
 	int lineCursor = 0;
 	int patternCursor = 0;
-	int attempts = 0; //Used to reset lineCursor when "resetting" search
 	int initial = 1; //Is this the first character we're looking for?
 	int	matching = theMatcher(line, pattern, lineCursor, patternCursor, initial);
 	while (matching == -1)
 	{
 		patternCursor = 0;
-		attempts++;
-		lineCursor = attempts;
+		lineCursor++;
 		matching = theMatcher(line, pattern, lineCursor, patternCursor, initial);
 	}
 
