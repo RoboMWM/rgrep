@@ -93,10 +93,6 @@ int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 
 int questionMatch(char *line, char *pattern, int lineCursor, int patternCursor, char whatToLookFor, int initial)
 {
-	//First see if we can match omitting this character
-	if (theMatcher(line, pattern, lineCursor, patternCursor + 2) == 1)
-		return -2;
-	
 	int lastKnownLine = lineCursor;
 	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
 	if (lineCursor == -1)
@@ -154,9 +150,10 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor)
 				}
 				break;
 			case 2:
-				result = questionMatch(line, pattern, lineCursor, patternCursor, thingWeAreLookingFor, initial);
-				if (result == -2)
+				//First see if we can match omitting this character
+				if (theMatcher(line, pattern, lineCursor, patternCursor + 2) == 1)
 					return 1;
+				result = questionMatch(line, pattern, lineCursor, patternCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the ?
 				break;
 			case 3:
