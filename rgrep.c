@@ -100,11 +100,10 @@ int questionMatch(char *line, char *pattern, int lineCursor, int patternCursor, 
 	return lineCursor;
 }
 
-int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor)
+int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int initial)
 {
 	/**If we're at the end of the pattern and we are matching, return now
 		Otherwise, reset patternCursor*/
-	int initial = 1; //Is this the first character we're looking for?
 	int match = 0; //Are we currently matching (used when we hit end of line)
 	while(1)
 	{
@@ -151,7 +150,7 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor)
 				break;
 			case 2:
 				//First see if we can match omitting this character
-				if (theMatcher(line, pattern, lineCursor, patternCursor + 2) == 1)
+				if (theMatcher(line, pattern, lineCursor, patternCursor + 2, 0) == 1)
 					return 1;
 				result = questionMatch(line, pattern, lineCursor, patternCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the ?
@@ -204,7 +203,8 @@ int rgrep_matches(char *line, char *pattern) {
 	int lineCursor = 0;
 	int patternCursor = 0;
 	int attempts = 0; //Used to reset lineCursor when "resetting" search
-	int	matching = theMatcher(line, pattern, lineCursor, patternCursor);
+	int initial = 1; //Is this the first character we're looking for?
+	int	matching = theMatcher(line, pattern, lineCursor, patternCursor, initial);
 	while (matching == -1)
 	{
 		patternCursor = 0;
