@@ -113,13 +113,7 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor)
 			if (match)
 				return 1;
 			else
-			{
-				patternCursor = 0;
-				attempts = attempts + 1;
-				lineCursor = attempts;
-				match = 0;
-				initial = 1;
-			}
+				return -1
 		}
 		
 
@@ -188,7 +182,7 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor)
 		Also reset line "cursor" position + amount of attempts
 		*/
 		else
-			return 0;
+			return -1;
 	}
 		//? = return same value/position if not found
 		//+ = if found, keep check if next character also matches. Continue process, and return appropriate position
