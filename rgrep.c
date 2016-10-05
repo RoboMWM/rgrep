@@ -210,7 +210,7 @@ int rgrep_matches(char *line, char *pattern) {
 		patternCursor = 0;
 		attempts++;
 		lineCursor = attempts;
-		matching = theMatcher(line, pattern, lineCursor, patternCursor);
+		matching = theMatcher(line, pattern, lineCursor, patternCursor, initial);
 	}
 
     return matching;
