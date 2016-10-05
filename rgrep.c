@@ -164,6 +164,11 @@ int rgrep_matches(char *line, char *pattern) {
 			case 1:
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the +
+				if (pattern[patternCursor] == thingWeAreLookingFor && result > lineCursor) //Special case for things like a+a
+				{
+					result--;
+					break;
+				}
 				break;
 			case 2:
 				result = questionMatch(line, lineCursor, thingWeAreLookingFor, initial);
