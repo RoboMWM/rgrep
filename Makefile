@@ -26,4 +26,7 @@ check: clean rgrep
 	test "`echo "aab" | ./rgrep 'bb?'`" = "aab"
 	test "`echo "aaab" | ./rgrep 'a+b'`" = "aaab"
 	test "`echo "aaab" | ./rgrep 'a+ab'`" = "aaab"
+  	test "`echo "bah" | ./rgrep 'ba?ah'`" = "bah"
+  	test "`echo "baah" | ./rgrep 'ba?ah'`" = "baah"
 	@echo "Passed sanity check."
+
