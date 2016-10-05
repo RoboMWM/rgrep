@@ -91,7 +91,7 @@ int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 	return lastKnownLine;
 }
 
-int questionMatch(char *line, int lineCursor, char whatToLookFor, int initial)
+int questionMatch(char *line, char *pattern, int lineCursor, int patternCursor, char whatToLookFor, int initial)
 {
 	int lastKnownLine = lineCursor;
 	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
@@ -100,42 +100,19 @@ int questionMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 	return lineCursor;
 }
 
-/**
- * You may assume that all strings are properly null terminated 
- * and will not overrun the buffer set by MAXSIZE 
- *
- * Implementation of the rgrep matcher function
-Student note: main calls rgreg_matches for _each line._
- */
-int rgrep_matches(char *line, char *pattern) {
-
-	/**First we're gonna split up our pattern	*/
-	
-	/**We search the line for each part of the pattern
-	We maintain line "cursor" position as we iterate through each section of the pattern (result must be contiguous, obviously)
-	*/
-
-	int lineCursor = 0;
-	int patternCursor = 0;
-	int match = 0; //Are we currently matching (used when we hit end of line
-	int attempts = 0; //Used to reset lineCursor to when "resetting" search
-	int initial = 1; //Is this the first character we're looking for?
-	while (1)
-	{
-		/**If we're at the end of the pattern and we are matching, return now
+int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int initial)
+{
+	/**If we're at the end of the pattern and we are matching, return now
 		Otherwise, reset patternCursor*/
+	int match = 0; //Are we currently matching (used when we hit end of line)
+	while(1)
+	{
 		if (!pattern[patternCursor])
 		{
 			if (match)
 				return 1;
 			else
-			{
-				patternCursor = 0;
-				attempts = attempts + 1;
-				lineCursor = attempts;
-				match = 0;
-				initial = 1;
-			}
+				return -1;
 		}
 		
 
@@ -172,13 +149,11 @@ int rgrep_matches(char *line, char *pattern) {
 				}
 				break;
 			case 2:
-				result = questionMatch(line, lineCursor, thingWeAreLookingFor, initial);
+				//First see if we can match omitting this character
+				if (theMatcher(line, pattern, lineCursor, patternCursor + 2, 0) == 1)
+					return 1;
+				result = questionMatch(line, pattern, lineCursor, patternCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the ?
-				if (pattern[patternCursor] == thingWeAreLookingFor && result > lineCursor) //Special case for things like a?a
-				{
-					result = lineCursor;
-					break;
-				}
 				break;
 			case 3:
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
@@ -204,20 +179,41 @@ int rgrep_matches(char *line, char *pattern) {
 		Also reset line "cursor" position + amount of attempts
 		*/
 		else
-		{
-			patternCursor = 0;
-			attempts++;
-			lineCursor = attempts;
-			match = 0;
-			initial = 1;
-		}
+			return -1;
+	}
 		//? = return same value/position if not found
 		//+ = if found, keep check if next character also matches. Continue process, and return appropriate position
 		//+? = same as ?, but if found, apply + (call ? method, if it doesn't return same position, call +)
-		
+}
+/**
+ * You may assume that all strings are properly null terminated 
+ * and will not overrun the buffer set by MAXSIZE 
+ *
+ * Implementation of the rgrep matcher function
+Student note: main calls rgreg_matches for _each line._
+ */
+int rgrep_matches(char *line, char *pattern) {
+
+	/**First we're gonna split up our pattern	*/
+	
+	/**We search the line for each part of the pattern
+	We maintain line "cursor" position as we iterate through each section of the pattern (result must be contiguous, obviously)
+	*/
+
+	int lineCursor = 0;
+	int patternCursor = 0;
+	int attempts = 0; //Used to reset lineCursor when "resetting" search
+	int initial = 1; //Is this the first character we're looking for?
+	int	matching = theMatcher(line, pattern, lineCursor, patternCursor, initial);
+	while (matching == -1)
+	{
+		patternCursor = 0;
+		attempts++;
+		lineCursor = attempts;
+		matching = theMatcher(line, pattern, lineCursor, patternCursor, initial);
 	}
 
-    return match;
+    return matching;
 }
 
 int main(int argc, char **argv) {
