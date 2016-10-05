@@ -145,7 +145,7 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 				if (result != -1) //Attempt to consider cases like a+a via decrementing a copy of lineCursor
 				{
 					int preliminaryLineCursor = result;
-					while (line[--preliminaryLineCursor] == thingWeAreLookingFor)
+					while (line[--preliminaryLineCursor] == thingWeAreLookingFor && preliminaryLineCursor >= lineCursor)
 					{
 						int preliminaryResult = theMatcher(line, pattern, preliminaryLineCursor, patternCursor, 0);
 						if (preliminaryResult == 1)
