@@ -70,15 +70,15 @@ int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 		else
 			lineCursor++;
 	}
-	return 0; //Did not find anything
+	return -1; //Did not find anything
 }
 
 int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 {
 	int lastKnownLine = lineCursor;
 	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
-	if (lineCursor == 0)
-		return 0; //No match
+	if (lineCursor == -1)
+		return -1; //No match
 
 	while (lineCursor != 0)
 	{
@@ -86,6 +86,15 @@ int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 		lineCursor = basicMatch(line, lineCursor, whatToLookFor, 0);
 	}
 	return lastKnownLine;
+}
+
+int questionMatch(char *line, int lineCursor, char whatToLookFor, int initial)
+{
+	int lastKnownLine = lineCursor;
+	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
+	if (lineCursor == 0)
+		return lastKnownLine; //doesn't exist, but doesn't matter either
+	return lineCursor;
 }
 
 /**
@@ -152,8 +161,12 @@ int rgrep_matches(char *line, char *pattern) {
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the +
 				break;
+			case 2:
+				result = questionMatch(line, lineCursor, thingWeAreLookingFor, initial);
+				patternCursor = patternCursor + 2; //Jump over the ?
+				break;
 		}
-		if (result != 0)
+		if (result != -1)
 		{
 			lineCursor = result;
 			match = 1;
