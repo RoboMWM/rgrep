@@ -168,13 +168,17 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 					return 1;
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 3;
-				if (result == -1)
+				if (result != -1) //Attempt to consider cases like a+a via decrementing a copy of lineCursor
 				{
-					result = lineCursor;
-				}
-				else if (pattern[patternCursor] == thingWeAreLookingFor && result > lineCursor)
-				{
-					result--;
+					int preliminaryLineCursor = result;
+					while (line[--preliminaryLineCursor] == thingWeAreLookingFor && preliminaryLineCursor > lineCursor)
+					{
+						int preliminaryResult = theMatcher(line, pattern, preliminaryLineCursor, patternCursor, 0);
+						if (preliminaryResult == 1)
+						{
+							return 1;
+						}
+					}	
 				}
 				break;
 		}
