@@ -173,10 +173,22 @@ int rgrep_matches(char *line, char *pattern) {
 			case 2:
 				result = questionMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the ?
-				if (pattern[patternCursor] == thingWeAreLookingFor && result != lineCursor) //Special case for things like a?a
+				if (pattern[patternCursor] == thingWeAreLookingFor && result > lineCursor) //Special case for things like a?a
 				{
 					result = lineCursor;
 					break;
+				}
+				break;
+			case 3:
+				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
+				patternCursor = patternCursor + 3;
+				if (result == -1)
+				{
+					result = lineCursor;
+				}
+				else if (pattern[patternCursor] == thingWeAreLookingFor && result > lineCursor)
+				{
+					result--;
 				}
 				break;
 		}
