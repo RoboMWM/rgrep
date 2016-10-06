@@ -45,15 +45,6 @@ int howAreWeLookingFor(char *pattern, int patternCursor)
 
 int basicMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 {
-	//Handle period
-	if (whatToLookFor == '.')
-	{
-		if (line[lineCursor] != 0)
-			return ++lineCursor;
-		else
-			return -1;
-	}
-
 	/**If this isn't the first character of the pattern we're looking for, only check the current lineCursor position*/
 	if (initial == 0)
 	{
@@ -79,9 +70,6 @@ int repeatMatch(char *line, int lineCursor, char whatToLookFor, int initial)
 	lineCursor = basicMatch(line, lineCursor, whatToLookFor, initial);
 	if (lineCursor == -1)
 		return -1; //No match
-
-	if (whatToLookFor == '.')
-		whatToLookFor = line[lineCursor - 1];
 
 	while (lineCursor != -1)
 	{
@@ -121,10 +109,10 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 		{
 			patternCursor++; //Skip to next character
 		}
-		else if (thingWeAreLookingFor == '.') //Handle period
-			thingWeAreLookingFor = line[lineCursor];
 
 		char thingWeAreLookingFor = pattern[patternCursor];
+		if (thingWeAreLookingFor == '.') //Handle period
+			thingWeAreLookingFor = line[lineCursor];
 		int howAreWeLookingForThing = howAreWeLookingFor(pattern, patternCursor);
 
 		/**If we're at end of line, but haven't finished matching the pattern yet, then no this is not a match*/
