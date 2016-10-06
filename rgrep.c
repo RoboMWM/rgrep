@@ -121,6 +121,8 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 		{
 			patternCursor++; //Skip to next character
 		}
+		else if (thingWeAreLookingFor == '.') //Handle period
+			thingWeAreLookingFor = line[lineCursor];
 
 		char thingWeAreLookingFor = pattern[patternCursor];
 		int howAreWeLookingForThing = howAreWeLookingFor(pattern, patternCursor);
@@ -142,8 +144,7 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 			case 1:
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 2; //Jump over the +
-				if (thingWeAreLookingFor == '.') //Handle period
-					thingWeAreLookingFor = line[lineCursor];
+				
 				if (result != -1) //Attempt to consider cases like a+a via decrementing a copy of lineCursor
 				{
 					int preliminaryLineCursor = result;
@@ -170,8 +171,6 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 					return 1;
 				result = repeatMatch(line, lineCursor, thingWeAreLookingFor, initial);
 				patternCursor = patternCursor + 3;
-				if (thingWeAreLookingFor == '.') //Handle period
-					thingWeAreLookingFor = line[lineCursor];
 				if (result != -1) //Attempt to consider cases like a+a via decrementing a copy of lineCursor
 				{
 					int preliminaryLineCursor = result;
