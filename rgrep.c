@@ -103,15 +103,16 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 				return -1;
 		}
 		
-
+		int escaped = 0;
 		//determine what we're looking for from pattern (separate method that returns necessary stuff)
 		if (pattern[patternCursor] == '\\')
 		{
 			patternCursor++; //Skip to next character
+			escaped = 1;
 		}
 
 		char thingWeAreLookingFor = pattern[patternCursor];
-		if (thingWeAreLookingFor == '.') //Handle period
+		if (thingWeAreLookingFor == '.' && !escaped) //Handle period
 			thingWeAreLookingFor = line[lineCursor];
 		int howAreWeLookingForThing = howAreWeLookingFor(pattern, patternCursor);
 
@@ -204,7 +205,6 @@ int rgrep_matches(char *line, char *pattern) {
 	/**We search the line for each part of the pattern
 	We maintain line "cursor" position as we iterate through each section of the pattern (result must be contiguous, obviously)
 	*/
-
 	int lineCursor = 0;
 	int patternCursor = 0;
 	int initial = 1; //Is this the first character we're looking for?
