@@ -92,6 +92,10 @@ int theMatcher(char *line, char *pattern, int lineCursor, int patternCursor, int
 {
 	/**If we're at the end of the pattern and we are matching, return now
 		Otherwise, reset patternCursor*/
+	int a = 1001;
+	int b = 25 | a;
+	printf("%d", b);
+	return 0;
 	int match = 0; //Are we currently matching (used when we hit end of line)
 	while(1)
 	{
